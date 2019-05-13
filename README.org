@@ -1,0 +1,31 @@
+#+TITLE: *dotenv.el* --- Plugin for loading .env project files.
+
+* Installation
+** use-package
+   #+begin_src elisp
+     (use-package dotenv
+       :ensure nil
+       :quelpa
+       (dotenv :repo "pkulev/dotenv.el"
+               :fetcher github :upgrade t))
+   #+end_src
+
+* Examples
+** Integration with projectile
+   Hook for loading project's /.env/ (if exists) after switching project via projectile.
+   #+begin_src elisp
+     (use-package dotenv
+       :ensure nil
+       :after projectile
+       :quelpa
+       (dotenv :repo "pkulev/dotenv.el"
+               :fetcher github :upgrade t)
+       :config
+       (defun dotenv-projectile-hook ()
+        "Projectile hook."
+        (let ((path (dotenv-path (projectile-project-root))))
+          (when (s-present? path)
+            (dotenv-update-env (dotenv-load path)))))
+
+       (add-to-list 'projectile-after-switch-project-hook #'dotenv-projectile-hook))
+   #+end_src
