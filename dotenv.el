@@ -60,6 +60,12 @@
     (destructuring-bind (key value) pair
       (setenv key value))))
 
+(defun dotenv-get (key path)
+  "Get value by KEY from env file PATH.
+
+Returns nil if KEY is not exist in .env file."
+  (second (assoc key (dotenv-load path))))
+
 (provide 'dotenv)
 
 ;;; dotenv.el ends here
