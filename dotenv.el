@@ -46,7 +46,7 @@
 
 (defun dotenv-parse-file (path)
   "Parse .env file by absolute PATH."
-  (mapcar #'(lambda (it) (s-split "=" it))
+  (mapcar #'(lambda (it) (s-split-up-to "=" it 1))
           (seq-filter #'s-present? (s-lines (f-read path)))))
 
 (defun dotenv-load (path)
