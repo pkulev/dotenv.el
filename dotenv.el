@@ -61,10 +61,14 @@
   (mapcar #'(lambda (it) (s-split-up-to "=" it 1))
           (seq-filter #'s-present? (s-lines (f-read path)))))
 
-(defun dotenv-load (path)
-  "Load .env by PATH."
+(defun dotenv-load% (path)
+  "Load .env by absolute PATH."
   (when (file-exists-p path)
     (dotenv-parse-file path)))
+
+(defun dotenv-load (project-root)
+  "Load .env by PROJECT-ROOT."
+  (dotenv-load% (dotenv-path project-root)))
 
 (defun dotenv-update-env (env-pairs)
   "Update env with values from ENV-PAIRS."
