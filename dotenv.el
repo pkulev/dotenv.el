@@ -70,10 +70,19 @@
   "Load .env by PROJECT-ROOT."
   (dotenv-load% (dotenv-path project-root)))
 
+(defun dotenv-transform-pair (pair)
+  "Transform key/value PAIR using custom transformers."
+  (destructuring-bind (key value) pair
+    (dolist (pair dotenv-transform-alist)
+      (let ((pred (car pair))
+            (transform (cdr pair)))
+        (when (funcall pred key value)
+          (return (funcall transform key value)))))))
+
 (defun dotenv-update-env (env-pairs)
   "Update env with values from ENV-PAIRS."
   (dolist (pair env-pairs)
-    (destructuring-bind (key value) pair
+    (destructuring-bind (key value) (dotenv-transform-pair pair)
       (setenv key value))))
 
 (defun dotenv-update-project-env (project-root)
