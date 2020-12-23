@@ -1,4 +1,4 @@
-;;; dotenv.el --- Plugin for loading .env project files.
+;;; dotenv.el --- Plugin for loading .env project files. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2020 Pavel Kulyov
 
