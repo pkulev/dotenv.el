@@ -90,10 +90,10 @@ For example:
 (defun dotenv-transform-pair (pair)
   "Transform key/value PAIR using custom transformers."
   (cl-destructuring-bind (key value) pair
-    (dolist (pair dotenv-transform-alist)
+    (cl-dolist (pair dotenv-transform-alist)
       (cl-destructuring-bind (pred . transform) pair
         (when (funcall pred key value)
-          (return (funcall transform key value)))))))
+          (cl-return (funcall transform key value)))))))
 
 (defun dotenv-update-env (env-pairs)
   "Update env with values from ENV-PAIRS."
@@ -109,7 +109,7 @@ For example:
   "Get value by KEY from env file PATH.
 
 Returns nil if KEY is not exist in .env file."
-  (second (assoc key (dotenv-load path))))
+  (cl-second (assoc key (dotenv-load path))))
 
 (provide 'dotenv)
 
