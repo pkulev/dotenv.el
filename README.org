@@ -23,9 +23,31 @@
        :config
        (defun dotenv-projectile-hook ()
         "Projectile hook."
-        (let ((path (dotenv-path (projectile-project-root))))
-          (when (s-present? path)
-            (dotenv-update-env (dotenv-load path)))))
+        (dotenv-update-project-env (projectile-project-root)))
+
+       (add-to-list 'projectile-after-switch-project-hook #'dotenv-projectile-hook))
+   #+end_src
+
+** Transform variable name or contents using =dotenv-transform-alist=
+   In this example /.env/ file contains =PYTHONPATH= among other vaiables. Assuming that =PYTHONPATH= contains list of pathes (delimeted by '=:=') relative to the project's root we can transform it into absolute. To do that add to =dotenv-transform-alist= a pair of a predicate function and a transform function. Predicate function takes =k= and =v= and returns =t= or =nil=, transform function takes =k= and =v= and returns two-element list with new values for =k= and =v=.
+   #+begin_src elisp
+     (use-package dotenv
+       :ensure nil
+       :after projectile
+       :quelpa
+       (dotenv :repo "pkulev/dotenv.el"
+               :fetcher github :upgrade t)
+       :config
+       (defun dotenv-absolutify-pythonpath (k v)
+         (list k (dotenv-absolutify-path-var-in-project v)))
+
+       (add-to-list
+        'dotenv-transform-alist
+        '((lambda (k v) (string= k "PYTHONPATH")) . dotenv-absolutify-pythonpath))
+
+       (defun dotenv-projectile-hook ()
+        "Projectile hook."
+        (dotenv-update-project-env (projectile-project-root)))
 
        (add-to-list 'projectile-after-switch-project-hook #'dotenv-projectile-hook))
    #+end_src
