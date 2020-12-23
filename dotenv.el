@@ -1,6 +1,6 @@
 ;;; dotenv.el --- Plugin for loading .env project files.
 
-;; Copyright (C) 2019 Pavel Kulyov
+;; Copyright (C) 2020 Pavel Kulyov
 
 ;; Author: Pavel Kulyov <kulyov.pavel@gmail.com>
 ;; Maintainer: Pavel Kulyov <kulyov.pavel@gmail.com>
