@@ -35,6 +35,8 @@
 ;;; Code:
 
 
+(require 'cl-lib)
+
 (require 'f)
 (require 's)
 
@@ -87,7 +89,7 @@ For example:
 
 (defun dotenv-transform-pair (pair)
   "Transform key/value PAIR using custom transformers."
-  (destructuring-bind (key value) pair
+  (cl-destructuring-bind (key value) pair
     (dolist (pair dotenv-transform-alist)
       (let ((pred (car pair))
             (transform (cdr pair)))
@@ -97,7 +99,7 @@ For example:
 (defun dotenv-update-env (env-pairs)
   "Update env with values from ENV-PAIRS."
   (dolist (pair env-pairs)
-    (destructuring-bind (key value) (dotenv-transform-pair pair)
+    (cl-destructuring-bind (key value) (dotenv-transform-pair pair)
       (setenv key value))))
 
 (defun dotenv-update-project-env (project-root)
