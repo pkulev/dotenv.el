@@ -76,6 +76,10 @@
     (destructuring-bind (key value) pair
       (setenv key value))))
 
+(defun dotenv-update-project-env (project-root)
+  "Update env with .env values from PROJECT-ROOT."
+  (dotenv-update-env (dotenv-load project-root)))
+
 (defun dotenv-get (key path)
   "Get value by KEY from env file PATH.
 
