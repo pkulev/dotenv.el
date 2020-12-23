@@ -91,8 +91,7 @@ For example:
   "Transform key/value PAIR using custom transformers."
   (cl-destructuring-bind (key value) pair
     (dolist (pair dotenv-transform-alist)
-      (let ((pred (car pair))
-            (transform (cdr pair)))
+      (cl-destructuring-bind (pred . transform) pair
         (when (funcall pred key value)
           (return (funcall transform key value)))))))
 
