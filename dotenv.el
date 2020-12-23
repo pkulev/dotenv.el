@@ -51,6 +51,21 @@
   :type 'alist)
 
 ;; Implementation:
+(defun dotenv-absolutify-path-var-in-project (path &optional delim)
+  "Transform pathes in PATH (delimeted by DELIM) to absolute using project root.
+
+It relies on `projectile', but `dotenv.el' doesn't depend on it. Consider this
+like contrib thing.
+
+For example:
+ > (dotenv-absolutify-path-var-in-project \"p1:p2:p3\")
+\"/path/to/project/p1:/path/to/project/p2:/path-to-project/p3\""
+  (when (s-present? path)
+    (let ((root (projectile-project-root)))
+      (s-join (or delim ":")
+              (mapcar (lambda (it) (f-join root it))
+                      (s-split (or delim ":") path))))))
+
 (defun dotenv-path (project-root)
   "Construct path for .env file for PROJECT-ROOT."
   (when (s-present? project-root)
