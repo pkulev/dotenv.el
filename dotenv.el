@@ -38,7 +38,19 @@
 (require 'f)
 (require 's)
 
+;; Customizations:
+(defgroup dotenv nil
+  "Load .env project files."
+  :prefix "dotenv-"
+  :group 'tools)
 
+(defcustom dotenv-transform-alist
+  '(((lambda (k v) t) . (lambda (k v) (list k v))))
+  "List of predicate-transform pairs for custom key or/and value processing."
+  :group 'c2
+  :type 'alist)
+
+;; Implementation:
 (defun dotenv-path (project-root)
   "Construct path for .env file for PROJECT-ROOT."
   (when (s-present? project-root)
