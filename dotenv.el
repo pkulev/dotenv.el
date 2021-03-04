@@ -75,8 +75,30 @@ For example:
 
 (defun dotenv-parse-file (path)
   "Parse .env file by absolute PATH."
-  (mapcar #'(lambda (it) (s-split-up-to "=" it 1))
-          (seq-filter #'s-present? (s-lines (f-read path)))))
+  (seq-filter #'identity
+              (mapcar #'dotenv-parse-line
+                      (seq-filter #'s-present? (s-lines (f-read path))))))
+
+(defun dotenv--assignment? (line)
+  "Naive assignment checker for LINE.
+
+LINE must be trimmed."
+  (and (s-present? line)
+       (not (s-starts-with? "#" line))
+       (s-contains? "=" line)))
+
+;; TODO: escape inner quotes
+;; TODO: expand new lines
+(defun dotenv-parse-line (line)
+  "Parse LINE string into the list of two elements (VAR VALUE).
+
+If LINE doesn't contain any kind of VAR=VALUE pair then nil will be return.
+Empty values are allowed."
+  (let ((line (s-trim line)))
+    (when (dotenv--assignment? line)
+      (cl-destructuring-bind (var value) (s-split-up-to "=" line 1)
+        (when (s-present? var)
+          (list (s-trim var) (s-trim value)))))))
 
 (defun dotenv-load% (path)
   "Load .env by absolute PATH."
