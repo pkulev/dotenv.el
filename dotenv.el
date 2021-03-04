@@ -32,6 +32,16 @@
 
 ;; Plugin for loading .env project files.
 
+;; Dotenv parser by following rules:
+;; * skip empty lines
+;; * trim every string (all spaces before first non-whitespace char and after
+;;   last non-whitespace char will be removed)
+;; * skip commentary lines (# at the line start)
+;; * skip lines which doesn't look like an proper assignment
+;; * variable name and its value will be trimmed
+
+;; TODO: respect whitespaces between quotes (VAR="  <- keep those ->  ")
+
 ;;; Code:
 
 
