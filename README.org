@@ -59,3 +59,29 @@ Dotenv parser by following rules:
 
        (add-to-list 'projectile-after-switch-project-hook #'dotenv-projectile-hook))
    #+end_src
+
+* API reference
+** Customizable variables
+   |--------------------------+----------+---------------------------------------|
+   | name                     | type     | description                           |
+   |--------------------------+----------+---------------------------------------|
+   | =dotenv-file-name=       | *string* | Dotenv file name (default: .env).     |
+   |--------------------------+----------+---------------------------------------|
+   | =dotenv-transform-alist= | *alist*  | List of predicate-transform pairs for |
+   |                          |          | custom key or/and value processing.   |
+   |--------------------------+----------+---------------------------------------|
+
+** Public functions
+   |---------------------------+-----------------------+-----------------------+-----------------------------|
+   | name                      | arguments             | returns               | description                 |
+   |---------------------------+-----------------------+-----------------------+-----------------------------|
+   | dotenv-load               | abs-path (str)        | list of (k . v) pairs | Load .env from file.        |
+   | dotenv-get                | key (str), path (str) | string                | Returns string value        |
+   |                           |                       |                       | by provided key.            |
+   |---------------------------+-----------------------+-----------------------+-----------------------------|
+   | dotenv-set                | *TODO*                | *TODO*                | *TODO*                      |
+   | dotenv-update-project-env | project-root (str)    | nil                   | Updates project environment |
+   |                           |                       |                       | with .env.                  |
+   | dotenv-update-env         | env-pairs, ?override  | *TODO*                | *TODO*                      |
+   | dotenv-dump-env           |                       |                       |                             |
+   |---------------------------+-----------------------+-----------------------+-----------------------------|
