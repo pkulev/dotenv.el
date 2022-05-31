@@ -56,10 +56,17 @@
   :prefix "dotenv-"
   :group 'tools)
 
+(defcustom dotenv-file-name ".env"
+  "Usually it's `.env'."
+  :group 'dotenv
+  :local t
+  :safe t
+  :type 'string)
+
 (defcustom dotenv-transform-alist
   '(((lambda (k v) t) . (lambda (k v) (list k v))))
   "List of predicate-transform pairs for custom key or/and value processing."
-  :group 'c2
+  :group 'dotenv
   :type 'alist)
 
 ;; Implementation:
