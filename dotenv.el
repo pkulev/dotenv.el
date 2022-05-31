@@ -4,7 +4,7 @@
 
 ;; Author: Pavel Kulyov <kulyov.pavel@gmail.com>
 ;; Maintainer: Pavel Kulyov <kulyov.pavel@gmail.com>
-;; Version: 0.2.0
+;; Version: 0.5.0
 ;; Keywords: tools
 ;; URL: https://www.github.com/pkulev/dotenv.el
 ;; Package-Requires: ((emacs "25.1") (s "1.12.0") (f "0.20.0"))
@@ -46,6 +46,7 @@
 
 
 (require 'cl-lib)
+(require 'subr-x)
 
 (require 'f)
 (require 's)
@@ -70,6 +71,8 @@
   :type 'alist)
 
 ;; Implementation:
+
+;; Key/Value transformation -->
 ;; TODO: do something with inner quotes and throw away quote replacement
 (defun dotenv-absolutify-path-var-in-project (path &optional delim)
   "Transform pathes in PATH (delimeted by DELIM) to absolute using project root.
@@ -87,18 +90,44 @@ For example:
                     (s-split (or delim ":")
                              (string-trim path quote-re quote-re))))))
 
+(defun dotenv-transform-pair (pair)
+  "Transform key/value PAIR using custom transformers."
+  (cl-destructuring-bind (key value) pair
+    (cl-dolist (pair dotenv-transform-alist)
+      (cl-destructuring-bind (pred . transform) pair
+        (when (funcall pred key value)
+          (cl-return (funcall transform key value)))))))
+;; <-- Key/Value transformation
 
-(defun dotenv-path (project-root)
-  "Construct path for .env file for PROJECT-ROOT."
-  (when (s-present? project-root)
-    (f-join project-root ".env")))
+;; File loading -->
+(defun dotenv-path (dir)
+  "Construct path for .env file for DIR.
 
-(defun dotenv-parse-file (path)
-  "Parse .env file by absolute PATH."
+Use this function for writes, as it doesn't check if .env file exists."
+  (if (stringp dir)
+      (f-join dir dotenv-file-name)
+    (error "DIR must be of string type")))
+
+(defun dotenv-locate (dir)
+  "Locate .env file in DIR and return absolute path to it if found.
+
+Use this function for reads, as it returns non-nil only if .env file exists."
+  (let ((path (dotenv-path dir)))
+    (when (f-exists? path)
+      path)))
+
+(defun dotenv-load (abs-path)
+  "Parse .env file by (absolute) ABS-PATH."
   (seq-filter #'identity
               (mapcar #'dotenv-parse-line
-                      (seq-filter #'s-present? (s-lines (f-read path))))))
+                      (seq-filter #'s-present? (s-lines (f-read abs-path))))))
 
+(defun dotenv-project-load (project-root)
+  "Load .env by PROJECT-ROOT."
+  (dotenv-load (dotenv-path project-root)))
+;; <-- File loading
+
+;; Parsing -->
 (defun dotenv--assignment? (line)
   "Naive assignment checker for LINE.
 
@@ -119,33 +148,22 @@ Empty values are allowed."
       (cl-destructuring-bind (var value) (s-split-up-to "=" line 1)
         (when (s-present? var)
           (list (s-trim var) (s-trim value)))))))
+;; <-- Parsing
 
-(defun dotenv-load% (path)
-  "Load .env by absolute PATH."
-  (when (file-exists-p path)
-    (dotenv-parse-file path)))
+;; --> Updating environment
+(defun dotenv-update-env (env-pairs &optional override)
+  "Update env with values from ENV-PAIRS.
 
-(defun dotenv-load (project-root)
-  "Load .env by PROJECT-ROOT."
-  (dotenv-load% (dotenv-path project-root)))
-
-(defun dotenv-transform-pair (pair)
-  "Transform key/value PAIR using custom transformers."
-  (cl-destructuring-bind (key value) pair
-    (cl-dolist (pair dotenv-transform-alist)
-      (cl-destructuring-bind (pred . transform) pair
-        (when (funcall pred key value)
-          (cl-return (funcall transform key value)))))))
-
-(defun dotenv-update-env (env-pairs)
-  "Update env with values from ENV-PAIRS."
+If OVERRIDE is true then override variables if already exists."
   (dolist (pair env-pairs)
     (cl-destructuring-bind (key value) (dotenv-transform-pair pair)
-      (setenv key value))))
+      (when (or override (null (getenv key)))
+        (setenv key value)))))
 
 (defun dotenv-update-project-env (project-root)
   "Update env with .env values from PROJECT-ROOT."
-  (dotenv-update-env (dotenv-load project-root)))
+  (dotenv-update-env (dotenv-load (dotenv-locate project-root))))
+;; <-- Updating environment
 
 (defun dotenv-get (key path)
   "Get value by KEY from env file PATH.
