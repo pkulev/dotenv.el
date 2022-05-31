@@ -124,7 +124,7 @@ Use this function for reads, as it returns non-nil only if .env file exists."
 
 (defun dotenv-project-load (project-root)
   "Load .env by PROJECT-ROOT."
-  (dotenv-load (dotenv-path project-root)))
+  (dotenv-load (dotenv-locate project-root)))
 ;; <-- File loading
 
 ;; Parsing -->
@@ -162,7 +162,7 @@ If OVERRIDE is true then override variables if already exists."
 
 (defun dotenv-update-project-env (project-root)
   "Update env with .env values from PROJECT-ROOT."
-  (dotenv-update-env (dotenv-load (dotenv-locate project-root))))
+  (dotenv-update-env (dotenv-project-load project-root)))
 ;; <-- Updating environment
 
 (defun dotenv-get (key path)
