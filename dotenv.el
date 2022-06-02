@@ -124,7 +124,8 @@ Use this function for reads, as it returns non-nil only if .env file exists."
 
 (defun dotenv-project-load (project-root)
   "Load .env by PROJECT-ROOT."
-  (dotenv-load (dotenv-locate project-root)))
+  (let ((abs-path (dotenv-locate project-root)))
+    (when abs-path (dotenv-load abs-path))))
 ;; <-- File loading
 
 ;; Parsing -->
