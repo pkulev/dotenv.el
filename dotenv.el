@@ -163,7 +163,7 @@ If OVERRIDE is true then override variables if already exists."
 
 (defun dotenv-update-project-env (project-root)
   "Update env with .env values from PROJECT-ROOT."
-  (dotenv-update-env (dotenv-project-load project-root)))
+  (when project-root (dotenv-update-env (dotenv-project-load project-root))))
 ;; <-- Updating environment
 
 (defun dotenv-get (key path)
