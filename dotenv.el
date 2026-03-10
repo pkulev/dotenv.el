@@ -7,7 +7,7 @@
 ;; Version: 0.5.0
 ;; Keywords: tools
 ;; URL: https://www.github.com/pkulev/dotenv.el
-;; Package-Requires: ((emacs "25.1") (s "1.12.0") (f "0.20.0"))
+;; Package-Requires: ((emacs "28.1") (s "1.12.0") (f "0.20.0"))
 
 ;; This file is NOT part of GNU/Emacs.
 
@@ -46,6 +46,7 @@
 
 
 (require 'cl-lib)
+(require 'project)
 (require 'subr-x)
 
 (require 'f)
@@ -77,13 +78,10 @@
 (defun dotenv-absolutify-path-var-in-project (path &optional delim)
   "Transform pathes in PATH (delimeted by DELIM) to absolute using project root.
 
-It relies on `projectile', but `dotenv.el' doesn't depend on it. Consider this
-like contrib thing.
-
 For example:
  > (dotenv-absolutify-path-var-in-project \"p1:p2:p3\")
 \"/path/to/project/p1:/path/to/project/p2:/path-to-project/p3\""
-  (let ((root (projectile-project-root))
+  (let ((root (project-root (project-current)))
         (quote-re "\"\\|'"))
     (s-join (or delim ":")
             (mapcar (lambda (it) (f-join root it))
@@ -122,9 +120,9 @@ Use this function for reads, as it returns non-nil only if .env file exists."
               (mapcar #'dotenv-parse-line
                       (seq-filter #'s-present? (s-lines (f-read abs-path))))))
 
-(defun dotenv-project-load (project-root)
-  "Load .env by PROJECT-ROOT."
-  (let ((abs-path (dotenv-locate project-root)))
+(defun dotenv-project-load (root-dir)
+  "Load .env by ROOT-DIR."
+  (let ((abs-path (dotenv-locate root-dir)))
     (when abs-path (dotenv-load abs-path))))
 ;; <-- File loading
 
@@ -161,9 +159,9 @@ If OVERRIDE is true then override variables if already exists."
       (when (or override (null (getenv key)))
         (setenv key value)))))
 
-(defun dotenv-update-project-env (project-root &optional override)
-  "Update env with .env values from PROJECT-ROOT."
-  (when project-root (dotenv-update-env (dotenv-project-load project-root) override)))
+(defun dotenv-update-project-env (root-dir &optional override)
+  "Update env with .env values from ROOT-DIR with optional OVERRIDE."
+  (when root-dir (dotenv-update-env (dotenv-project-load root-dir) override)))
 ;; <-- Updating environment
 
 (defun dotenv-get (key path)
