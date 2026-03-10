@@ -1,10 +1,10 @@
 ;;; dotenv.el --- Plugin for loading .env project files. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Pavel Kulyov
+;; Copyright (C) 2026 Pavel Kulyov
 
 ;; Author: Pavel Kulyov <kulyov.pavel@gmail.com>
 ;; Maintainer: Pavel Kulyov <kulyov.pavel@gmail.com>
-;; Version: 0.5.0
+;; Version: 0.6.0
 ;; Keywords: tools
 ;; URL: https://www.github.com/pkulev/dotenv.el
 ;; Package-Requires: ((emacs "28.1") (s "1.12.0") (f "0.20.0"))
