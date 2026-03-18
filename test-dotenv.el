@@ -27,7 +27,7 @@
 
 (ert-deftest test-dotenv-parse-file ()
   "Tests for `dotenv-parse-file'."
-  (should (equal (dotenv-parse-file "test.env")
+  (should (equal (dotenv-load "test.env")
                  '(("VAR3" "test-val-3")
                    ("VAR4" "test-val-4")
                    ("VAR5" "test-val-5")
