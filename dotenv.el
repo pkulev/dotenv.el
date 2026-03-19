@@ -103,7 +103,7 @@ For example:
 
 Use this function for writes, as it doesn't check if .env file exists."
   (if (stringp dir)
-      (f-join dir dotenv-file-name)
+      (file-name-concat dir dotenv-file-name)
     (error "DIR must be of string type")))
 
 (defun dotenv-locate (dir)
@@ -111,7 +111,7 @@ Use this function for writes, as it doesn't check if .env file exists."
 
 Use this function for reads, as it returns non-nil only if .env file exists."
   (let ((path (dotenv-path dir)))
-    (when (f-exists? path)
+    (when (file-exists-p path)
       path)))
 
 (defun dotenv-load (abs-path)
