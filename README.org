@@ -1,15 +1,21 @@
 #+TITLE: *dotenv.el* --- Plugin for loading .env project files.
 
-Dotenv parser by following rules:
+Dotenv parser rules:
 - skip empty lines
-- trim every string (all spaces before first non-whitespace char and after
-  last non-whitespace char will be removed)
+- trim every string (remove all spaces before first non-whitespace char and after
+  last non-whitespace char)
 - skip commentary lines (=#= at the line start)
 - skip lines which doesn't look like an proper assignment
-- variable name and its value will be trimmed
+- trim variable name and its value
+
+This package can be used as a library for manipulating .env files. Contact me
+if you're making something interesting with it, I'm looking for usecases ;-).
 
 * Installation
 ** use-package
+   This package is not published on Melpa yet, so you need something like =quelpa= to
+   install it directly from the source repository.
+
    #+begin_src elisp
      (use-package dotenv
        :ensure nil

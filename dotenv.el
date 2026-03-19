@@ -1,10 +1,10 @@
-;;; dotenv.el --- Plugin for loading .env project files. -*- lexical-binding: t -*-
+;;; dotenv.el --- Plugin for loading .env project files -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2026 Pavel Kulyov
 
 ;; Author: Pavel Kulyov <kulyov.pavel@gmail.com>
 ;; Maintainer: Pavel Kulyov <kulyov.pavel@gmail.com>
-;; Version: 0.6.0
+;; Version: 0.7.0
 ;; Keywords: tools
 ;; URL: https://www.github.com/pkulev/dotenv.el
 ;; Package-Requires: ((emacs "28.1") (s "1.12.0") (f "0.20.0"))
@@ -32,13 +32,13 @@
 
 ;; Plugin for loading .env project files.
 
-;; Dotenv parser by following rules:
+;; Dotenv parser rules:
 ;; * skip empty lines
-;; * trim every string (all spaces before first non-whitespace char and after
-;;   last non-whitespace char will be removed)
+;; * trim every string (remove all spaces before first non-whitespace char and after
+;;   last non-whitespace char)
 ;; * skip commentary lines (# at the line start)
 ;; * skip lines which doesn't look like an proper assignment
-;; * variable name and its value will be trimmed
+;; * trim variable name and its value
 
 ;; TODO: respect whitespaces between quotes (VAR="  <- keep those ->  ")
 
@@ -172,11 +172,13 @@ If OVERRIDE is true then override variables if already exists."
   (dotenv-update-project-env (project-root (project-current)) override))
 ;; <-- Updating environment
 
+;; --> Other library functions
 (defun dotenv-get (key path)
   "Get value by KEY from env file PATH.
 
 Returns nil if KEY is not exist in .env file."
   (cl-second (assoc key (dotenv-load path))))
+;; <-- Other library functions
 
 (provide 'dotenv)
 
