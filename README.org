@@ -19,32 +19,46 @@ Dotenv parser by following rules:
    #+end_src
 
 * Examples
+  Note that in the following examples installation-related =use-package= clauses are omitted.
+
+** Using built-in Emacs project manager
+   Built-in project.el is quite neat, but has no =project-switch-hook=. The only solution
+   I found is to hook on prog-mode for now, very suboptimal.
+
+   #+begin_src elisp
+     (use-package dotenv
+       :hook
+       (prog-mode . dotenv-update-current-env))
+   #+end_src
+
+** Overwrite existing environment variables
+   It doesn't happen by default, pass =t= as =override= into =dotenv-update-*= function:
+   #+begin_src elisp
+     (use-package dotenv
+       :hook
+       (prog-mode . (lambda () (dotenv-update-current-env t))))
+   #+end_src
+
 ** Integration with projectile
    Hook for loading project's /.env/ (if exists) after switching project via projectile.
    #+begin_src elisp
      (use-package dotenv
-       :ensure nil
        :after projectile
-       :quelpa
-       (dotenv :repo "pkulev/dotenv.el"
-               :fetcher github :upgrade t)
-       :config
-       (defun dotenv-projectile-hook ()
-        "Projectile hook."
-        (dotenv-update-project-env (projectile-project-root)))
-
-       (add-to-list 'projectile-after-switch-project-hook #'dotenv-projectile-hook))
+       :hook
+       (projectile-after-switch-project-hook . (lambda () (dotenv-update-project-env (projectile-project-root)))))
    #+end_src
 
 ** Transform variable name or contents using =dotenv-transform-alist=
-   In this example /.env/ file contains =PYTHONPATH= among other vaiables. Assuming that =PYTHONPATH= contains list of pathes (delimeted by '=:=') relative to the project's root we can transform it into absolute. To do that add to =dotenv-transform-alist= a pair of a predicate function and a transform function. Predicate function takes =k= and =v= and returns =t= or =nil=, transform function takes =k= and =v= and returns two-element list with new values for =k= and =v=.
+   In this example /.env/ file contains =PYTHONPATH= among other vaiables.
+   Assuming that =PYTHONPATH= contains list of pathes (delimeted by '=:=') relative to
+   the project's root we can transform it into absolute.
+   To do that add to =dotenv-transform-alist= a pair of a predicate function and a
+   transform function. Predicate function takes =k= and =v= and returns =t= or =nil=,
+   transform function takes =k= and =v= and returns two-element list with new values for =k= and =v=.
+
    #+begin_src elisp
      (use-package dotenv
-       :ensure nil
        :after projectile
-       :quelpa
-       (dotenv :repo "pkulev/dotenv.el"
-               :fetcher github :upgrade t)
        :config
        (defun dotenv-absolutify-pythonpath (k v)
          (list k (dotenv-absolutify-path-var-in-project v)))
@@ -53,11 +67,8 @@ Dotenv parser by following rules:
         'dotenv-transform-alist
         '((lambda (k v) (string= k "PYTHONPATH")) . dotenv-absolutify-pythonpath))
 
-       (defun dotenv-projectile-hook ()
-        "Projectile hook."
-        (dotenv-update-project-env (projectile-project-root)))
-
-       (add-to-list 'projectile-after-switch-project-hook #'dotenv-projectile-hook))
+       :hook
+       (projectile-after-switch-project-hook . (lambda () (dotenv-update-project-env (projectile-project-root)))))
    #+end_src
 
 * API reference
@@ -72,16 +83,18 @@ Dotenv parser by following rules:
    |--------------------------+----------+---------------------------------------|
 
 ** Public functions
-   |---------------------------+-----------------------+-----------------------+-----------------------------|
-   | name                      | arguments             | returns               | description                 |
-   |---------------------------+-----------------------+-----------------------+-----------------------------|
-   | dotenv-load               | abs-path (str)        | list of (k . v) pairs | Load .env from file.        |
-   | dotenv-get                | key (str), path (str) | string                | Returns string value        |
-   |                           |                       |                       | by provided key.            |
-   |---------------------------+-----------------------+-----------------------+-----------------------------|
-   | dotenv-set                | *TODO*                | *TODO*                | *TODO*                      |
-   | dotenv-update-project-env | project-root (str)    | nil                   | Updates project environment |
-   |                           |                       |                       | with .env.                  |
-   | dotenv-update-env         | env-pairs, ?override  | *TODO*                | *TODO*                      |
-   | dotenv-dump-env           |                       |                       |                             |
-   |---------------------------+-----------------------+-----------------------+-----------------------------|
+   |---------------------------+-----------------------+---------------------+-----------------------------------|
+   | name                      | arguments             | returns             | description                       |
+   |---------------------------+-----------------------+---------------------+-----------------------------------|
+   | dotenv-load               | abs-path (str)        | list of (k v) pairs | Load .env from file.              |
+   | dotenv-load-dir           | root-dir (str)        | list of (k v) pairs | Load .env from file in root-dir.  |
+   |---------------------------+-----------------------+---------------------+-----------------------------------|
+   | dotenv-get                | key (str), path (str) | string              | Returns a string value by a key.  |
+   |---------------------------+-----------------------+---------------------+-----------------------------------|
+   | dotenv-update-env         | env-pairs, ?override  | nil                 | Update env with env-pairs values. |
+   | dotenv-update-project-env | root-dir (str),       |                     | Updates project environment       |
+   |                           | ?override             | nil                 | with .env by a given root dir.    |
+   | dotenv-update-current-env | ?override             | nil                 | Updates current project's         |
+   |                           |                       |                     | environment (uses project.el to   |
+   |                           |                       |                     | locate the project root)          |
+   |---------------------------+-----------------------+---------------------+-----------------------------------|

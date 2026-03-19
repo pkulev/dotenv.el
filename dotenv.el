@@ -115,13 +115,17 @@ Use this function for reads, as it returns non-nil only if .env file exists."
       path)))
 
 (defun dotenv-load (abs-path)
-  "Parse .env file by (absolute) ABS-PATH."
+  "Parse .env file by (absolute) ABS-PATH.
+
+Returns a list of (name value) lists."
   (seq-filter #'identity
               (mapcar #'dotenv-parse-line
                       (seq-filter #'s-present? (s-lines (f-read abs-path))))))
 
-(defun dotenv-project-load (root-dir)
-  "Load .env by ROOT-DIR."
+(defun dotenv-load-dir (root-dir)
+  "Load .env by ROOT-DIR.
+
+Returns a list of (name value) lists."
   (let ((abs-path (dotenv-locate root-dir)))
     (when abs-path (dotenv-load abs-path))))
 ;; <-- File loading
@@ -161,7 +165,11 @@ If OVERRIDE is true then override variables if already exists."
 
 (defun dotenv-update-project-env (root-dir &optional override)
   "Update env with .env values from ROOT-DIR with optional OVERRIDE."
-  (when root-dir (dotenv-update-env (dotenv-project-load root-dir) override)))
+  (when root-dir (dotenv-update-env (dotenv-load-dir root-dir) override)))
+
+(defun dotenv-update-current-env (&optional override)
+  "Update env with current project's .env values with optional OVERRIDE."
+  (dotenv-update-project-env (project-root (project-current)) override))
 ;; <-- Updating environment
 
 (defun dotenv-get (key path)
