@@ -1,10 +1,10 @@
-;;; dotenv.el --- Plugin for loading .env project files. -*- lexical-binding: t -*-
+;;; dotenv.el --- Plugin for loading .env project files -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2026 Pavel Kulyov
 
 ;; Author: Pavel Kulyov <kulyov.pavel@gmail.com>
 ;; Maintainer: Pavel Kulyov <kulyov.pavel@gmail.com>
-;; Version: 0.6.0
+;; Version: 0.7.0
 ;; Keywords: tools
 ;; URL: https://www.github.com/pkulev/dotenv.el
 ;; Package-Requires: ((emacs "28.1") (s "1.12.0") (f "0.20.0"))
@@ -32,13 +32,13 @@
 
 ;; Plugin for loading .env project files.
 
-;; Dotenv parser by following rules:
+;; Dotenv parser rules:
 ;; * skip empty lines
-;; * trim every string (all spaces before first non-whitespace char and after
-;;   last non-whitespace char will be removed)
+;; * trim every string (remove all spaces before first non-whitespace char and after
+;;   last non-whitespace char)
 ;; * skip commentary lines (# at the line start)
 ;; * skip lines which doesn't look like an proper assignment
-;; * variable name and its value will be trimmed
+;; * trim variable name and its value
 
 ;; TODO: respect whitespaces between quotes (VAR="  <- keep those ->  ")
 
@@ -103,7 +103,7 @@ For example:
 
 Use this function for writes, as it doesn't check if .env file exists."
   (if (stringp dir)
-      (f-join dir dotenv-file-name)
+      (file-name-concat dir dotenv-file-name)
     (error "DIR must be of string type")))
 
 (defun dotenv-locate (dir)
@@ -111,17 +111,21 @@ Use this function for writes, as it doesn't check if .env file exists."
 
 Use this function for reads, as it returns non-nil only if .env file exists."
   (let ((path (dotenv-path dir)))
-    (when (f-exists? path)
+    (when (file-exists-p path)
       path)))
 
 (defun dotenv-load (abs-path)
-  "Parse .env file by (absolute) ABS-PATH."
+  "Parse .env file by (absolute) ABS-PATH.
+
+Returns a list of (name value) lists."
   (seq-filter #'identity
               (mapcar #'dotenv-parse-line
                       (seq-filter #'s-present? (s-lines (f-read abs-path))))))
 
-(defun dotenv-project-load (root-dir)
-  "Load .env by ROOT-DIR."
+(defun dotenv-load-dir (root-dir)
+  "Load .env by ROOT-DIR.
+
+Returns a list of (name value) lists."
   (let ((abs-path (dotenv-locate root-dir)))
     (when abs-path (dotenv-load abs-path))))
 ;; <-- File loading
@@ -161,14 +165,20 @@ If OVERRIDE is true then override variables if already exists."
 
 (defun dotenv-update-project-env (root-dir &optional override)
   "Update env with .env values from ROOT-DIR with optional OVERRIDE."
-  (when root-dir (dotenv-update-env (dotenv-project-load root-dir) override)))
+  (when root-dir (dotenv-update-env (dotenv-load-dir root-dir) override)))
+
+(defun dotenv-update-current-env (&optional override)
+  "Update env with current project's .env values with optional OVERRIDE."
+  (dotenv-update-project-env (project-root (project-current)) override))
 ;; <-- Updating environment
 
+;; --> Other library functions
 (defun dotenv-get (key path)
   "Get value by KEY from env file PATH.
 
 Returns nil if KEY is not exist in .env file."
   (cl-second (assoc key (dotenv-load path))))
+;; <-- Other library functions
 
 (provide 'dotenv)
 
