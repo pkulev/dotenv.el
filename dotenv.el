@@ -168,8 +168,11 @@ If OVERRIDE is true then override variables if already exists."
   (when root-dir (dotenv-update-env (dotenv-load-dir root-dir) override)))
 
 (defun dotenv-update-current-env (&optional override)
-  "Update env with current project's .env values with optional OVERRIDE."
-  (dotenv-update-project-env (project-root (project-current)) override))
+  "Update env with current project's .env values with optional OVERRIDE.
+
+Nothing will happen when called without an active project."
+  (if-let* ((project (project-current)))
+      (dotenv-update-project-env (project-root project) override)))
 ;; <-- Updating environment
 
 ;; --> Other library functions
